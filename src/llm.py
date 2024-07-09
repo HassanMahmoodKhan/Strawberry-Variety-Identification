@@ -4,7 +4,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SimpleSequentialChain
 
 # Set up OpenAI API key
-os.environ['OPENAI_API_KEY'] = 'sk-proj-veSklGdfeQ6ujjdrShoIT3BlbkFJWsT5kFIPTX1nTmqkV4fr'
+os.environ['OPENAI_API_KEY'] = "your_api_key"
 
 def invokeLLM(input_variety='Fortuna'):
     """
