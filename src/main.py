@@ -8,6 +8,7 @@ import time
 import argparse
 
 from preprocessing import *
+from data_loader import load_datasets
 from train import *
 from test import *
 from onnx_conv import *
@@ -31,10 +32,13 @@ models_directory = os.path.join(current_directory, 'models')
 # Check if the 'assets' directory exists; if not, create it
 os.makedirs(models_directory, exist_ok=True)
 
+class_names = ['1975', '269', 'Benadice', 'Fortuna', 'Monterey', 'Radiance', 'SanAndreas']
+
 def main():
 
     parser = argparse.ArgumentParser(description="A script for multiclass strawberry classfication.")
     parser.add_argument("--model_type", type=str, help="custom or pretrained model", default="pretrained")
+    parser.add_argument("--runtime", type=str, help="inference stack e.g., [tensorflow, oonnxruntime]", default='tensorflow')
     parser.add_argument("--image_size", type=tuple, help="The image size for model input", default=(512,512))
     parser.add_argument("--batch_size", type=int, help="The batch size for model building", default=32)
     parser.add_argument("--epochs", type=int, help='Number of epochs', default=20)
@@ -42,11 +46,20 @@ def main():
     args = parser.parse_args()
 
     model_type = args.model_type
+    runtime = args.runtime
     image_size = args.image_size
     batch_size = args.batch_size
     n_epochs = args.epochs
 
-    model_path = os.path.join(models_directory, model_type + '.keras')
+    # Verify the inference stack to be employed
+    if runtime.lower() == 'tensorflow': 
+        model_path = os.path.join(models_directory, model_type + '.keras')
+    elif runtime.lower == 'onnxruntime':
+        model_path = os.path.join(models_directory, model_type + '.onnx')
+    else:
+        print(f"Invalid runtime: {runtime.lower()}")
+        exit(1)
+
     # Check if model already exists; if not, build and train model
     if not os.path.exists(model_path):
         
@@ -93,23 +106,24 @@ def main():
         plot_curves(history, fig_path)
 
         print("Evaluating model performance on testing set.")
-        evaluate(model, model_type, test_dataset, class_names, assets_directory)
-
+        evaluate(model, model_type, test_dataset)
+        
         print("Saving model to the ONNX format.")
         conv_to_onnx(model, model_type)
         
     else:
         
-        class_names = ['1975', '269', 'Benadice', 'Fortuna', 'Monterey', 'Radiance', 'SanAndreas']
-        
-        image_path = r"D:\Umer Project - Strawberry Identification App\test_images\Radiance_0411_16.jpg"
+        image_path = r"D:\Umer Project - Strawberry Identification App\test_images\Radiance.jpg"
         variety = 'Radiance'
+        
+        # Load model from file
+        loaded_model, model_type = load_model(model_path)
+        
+        # Perfrom inference
+        label_predicted = predict(loaded_model, model_type, image_path, variety)
 
-        # Load model from file and make prediction
-        label_predicted = predict(model_path, dataset_directory, class_names, image_path, variety, image_size)
-
-        # Invoke OpenAI's LLM for query answering related to the strawberry variety predicted
-        invokeLLM(label_predicted)
+        # Invoke OpenAI's LLM for prompt reponse related to the strawberry variety predicted
+        # invokeLLM(label_predicted)
         
 if __name__ == '__main__':
 
