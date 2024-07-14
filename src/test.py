@@ -1,9 +1,4 @@
 import os
-import logging
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-logging.getLogger('tensorflow').setLevel(logging.ERROR)
-
 import time
 import tensorflow as tf
 import numpy as np
@@ -11,8 +6,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import onnxruntime as ort
 
+from global_variables import *
 from preprocessing import process_image
-from main import dataset_directory, assets_directory, class_names
 
 def load_model(model_path):
     """
@@ -141,10 +136,10 @@ def predict(model, model_type, image_path=None, variety=None, input_shape=(512,5
     # Check if input image and associated variety is provided
     if not image_path == None and not variety == None:
         # Read and preprocess the image
-        input_image, label = process_image(dataset_directory, class_names, image_path, variety, input_shape=input_shape)
+        input_image, label = process_image(image_path, variety, input_shape=input_shape)
     else: 
         # Choose a random image from the dataset for prediction
-        input_image, label = process_image(dataset_directory, class_names, input_shape=input_shape)
+        input_image, label = process_image(input_shape=input_shape)
 
     if model_type == '.keras':
         # Make predictions

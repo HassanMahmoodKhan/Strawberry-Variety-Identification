@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from path import Path
 
-from main import dataset_directory, class_names
+from global_variables import *
 
 def process_image(image_path=None, variety=None, input_shape=(512,512)):
     """

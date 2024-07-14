@@ -7,32 +7,13 @@ logging.getLogger('tensorflow').setLevel(logging.ERROR)
 import time
 import argparse
 
+from global_variables import *
 from preprocessing import *
 from data_loader import load_datasets
 from train import *
 from test import *
 from onnx_conv import *
 from llm import *
-
-# Get the current working directory
-current_directory = os.getcwd()
-
-# Construct the path to the 'dataset' directory
-dataset_directory = os.path.join(current_directory, 'dataset')
-# Check if the 'dataset' directory exists; if not, create it
-os.makedirs(dataset_directory, exist_ok=True)
-
-# Construct the path to the 'assets' directory
-assets_directory = os.path.join(current_directory, 'assets')
-# Check if the 'assets' directory exists; if not, create it
-os.makedirs(assets_directory, exist_ok=True)
-
-# Construct the path to the 'models' directory
-models_directory = os.path.join(current_directory, 'models')
-# Check if the 'assets' directory exists; if not, create it
-os.makedirs(models_directory, exist_ok=True)
-
-class_names = ['1975', '269', 'Benadice', 'Fortuna', 'Monterey', 'Radiance', 'SanAndreas']
 
 def main():
 
@@ -107,7 +88,7 @@ def main():
 
         print("Evaluating model performance on testing set.")
         evaluate(model, model_type, test_dataset)
-        
+
         print("Saving model to the ONNX format.")
         conv_to_onnx(model, model_type)
         
@@ -123,8 +104,11 @@ def main():
         label_predicted = predict(loaded_model, model_type, image_path, variety)
 
         # Invoke OpenAI's LLM for prompt reponse related to the strawberry variety predicted
-        # invokeLLM(label_predicted)
-        
+        try:    
+            overall_chain.invoke(label_predicted)
+        except Exception as e:
+            print(f"An error occurred: {e}") 
+
 if __name__ == '__main__':
 
     main()
