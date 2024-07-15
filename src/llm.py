@@ -3,16 +3,24 @@ import warnings
 from langchain_openai import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SimpleSequentialChain
+from dotenv import load_dotenv
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning, module='langchain_core._api.deprecation')
 
-# Set up OpenAI API key
-os.environ['OPENAI_API_KEY'] = 'Your-API-Key'
+# Load environment variables from the .env file
+load_dotenv()
+
+# Access the API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
+
+# Check if API key is loaded successfully
+if openai_api_key is None:
+    raise ValueError("API key not found. Please set OPENAI_API_KEY in your .env file.")
 
 print("Initializing OpenAI's GPT-3.5 Turbo model.")
 # Initialize the OpenAI LLM
-llm = OpenAI(model_name='gpt-3.5-turbo-instruct', temperature=0)
+llm = OpenAI(api_key=openai_api_key, model_name='gpt-3.5-turbo-instruct', temperature=0)
 
 # First step in chain
 first_template = """Question: Give me a general overview of the {variety} strawberry.
