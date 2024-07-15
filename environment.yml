@@ -1,4 +1,4 @@
-name: strawberry_classfication
+name: strawberry_variety_classfication
 channels:
   - conda-forge
   - defaults
@@ -16,5 +16,6 @@ dependencies:
     - tensorflow==2.15.0
     - pandas==2.2.2
     - path==16.14.0
+    - python-dotenv==1.0.1
     - seaborn==0.13.2
     - streamlit==1.36.0
